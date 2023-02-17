@@ -32,11 +32,11 @@ from platform import system
 HEDSModulePath = os.getenv("HEDS_3_PYTHON_MODULES", "")
 
 if HEDSModulePath == "":
-    sdklocal = os.path.abspath( os.path.join(os.path.dirname(__file__), "holoeye", "slmdisplaysdk", "__init__.py") )
+    sdklocal = os.path.abspath(os.path.join(os.path.dirname(__file__), "holoeye", "slmdisplaysdk", "slm/__init__.py"))
     if os.path.isfile(sdklocal):
         HEDSModulePath = os.path.dirname(os.path.dirname(os.path.dirname( sdklocal )))
     else:
-        sdklocal = os.path.abspath( os.path.join( os.path.dirname(__file__), "..", "..", "sdk", "holoeye", "slmdisplaysdk", "__init__.py") )
+        sdklocal = os.path.abspath(os.path.join(os.path.dirname(__file__), "", "..", "sdk", "holoeye", "slmdisplaysdk", "__init__.py"))
         if os.path.isfile(sdklocal):
             HEDSModulePath = os.path.dirname(os.path.dirname(os.path.dirname( sdklocal )))
 

@@ -8,7 +8,7 @@ from .beamshaper import *
 
 class HoloTile:
     def __init__(self, wavelength: float, focal_length: float, input_beam_half_width: float, slm_coords: tuple[np.ndarray, np.ndarray], beam_shaping: BeamShaper):
-        self.gs_padding = 10
+        self.gs_padding = 5
         self.wavelength = wavelength
         self.focal_length = focal_length
         self.slm_x, self.slm_y = slm_coords
@@ -76,7 +76,7 @@ class HoloTile:
         holotile = HoloTile(...)
         holotile.D = 2.3E-6 (or other)
         Updates the associated values when called
-        :param value: Output pixel width [float]
+        :param value: Output pixel half width [mm, float]
         :return: None
         """
         self._D = D
@@ -120,7 +120,7 @@ class HoloTile:
         holotile = HoloTile(...)
         holotile.R = 1.2E-3 (or other)
         Updates the associated values when called
-        :param value: Input beam width [float]
+        :param value: Input beam 1/e^2 half width [float]
         :return: None
         """
         self._R = R

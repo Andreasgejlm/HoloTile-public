@@ -16,7 +16,7 @@ SLM_N = 1080
 SLM_DIM = SLM_PIXEL_SIZE * SLM_N
 INPUT_BEAM_HALF_WIDTH = 3E-3
 
-slm_enable = False
+slm_enable = True
 cam_enable = False
 
 if slm_enable:
@@ -25,7 +25,7 @@ if slm_enable:
 
 if cam_enable:
     from camera.edmundcam import EdmundCamera
-    cam = EdmundCamera(exposure_time=17.308)
+    cam = EdmundCamera(exposure_time=.508)
 
 slm_x, slm_y = np.meshgrid(np.linspace(-SLM_DIM / 2, SLM_DIM / 2, SLM_N),
                                np.linspace(-SLM_DIM / 2, SLM_DIM / 2, SLM_N))
@@ -34,7 +34,7 @@ def sdu_logo_demo():
     beamshaper = SquareTopHatShaper(WAVELENGTH, FOCAL_LENGTH, (slm_x, slm_y))
 
     holotile = HoloTile.from_tile_number(WAVELENGTH, FOCAL_LENGTH, INPUT_BEAM_HALF_WIDTH, (slm_x, slm_y), beam_shaping=beamshaper, n_tiles=18)
-    holotile.translate(-3E-3, 0, 0)
+    #holotile.translate(-3E-3, 0, 0)
     logo_image = cv2.imread(str(LOGO_PATH), -1)
     logo_image = logo_image[:, :, 0]
     logo_image = logo_image.astype(np.float64) / 255.0
@@ -61,9 +61,9 @@ def find_R():
     beamshaper = SquareTopHatShaper(WAVELENGTH, FOCAL_LENGTH, (slm_x, slm_y))
     fig, ax = plt.subplots(3, 3, sharex=True, sharey=True)
     ax = ax.flatten()
-    for i, R in enumerate(np.linspace(1.5E-3, 6E-3, 9)):
-        holotile = HoloTile.from_tile_number(WAVELENGTH, FOCAL_LENGTH, INPUT_BEAM_HALF_WIDTH, (slm_x, slm_y), beam_shaping=beamshaper, n_tiles=18)
-        holotile.translate(-3E-3, 0, 0)
+    for i, R in enumerate(np.linspace(2E-3, 3.8E-3, 9)):
+        holotile = HoloTile.from_tile_number(WAVELENGTH, FOCAL_LENGTH, INPUT_BEAM_HALF_WIDTH, (slm_x, slm_y), beam_shaping=beamshaper, n_tiles=26)
+        #holotile.translate(-3E-3, 0, 0)
         holotile.R = R
         logo_image = cv2.imread(str(LOGO_PATH), -1)
         logo_image = logo_image[:, :, 0]
