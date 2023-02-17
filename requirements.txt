@@ -1,0 +1,8 @@
+numpy~=1.21.5
+pyueye~=4.96.952
+opencv-python~=4.6.0.66
+matplotlib~=3.6.3
+pillow~=9.4.0
+scipy~=1.10.0
+pyfftw~=0.13.1
+torch~=1.13.1
