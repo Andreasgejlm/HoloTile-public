@@ -1,5 +1,6 @@
 from typing import Literal
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 from .propagate import propagate
 from .utils import awgs, tile2, gaussiansource2
@@ -178,30 +179,50 @@ class HoloTile:
         stacked_hologram = np.mod(tiled_hologram + self.psf_phi, np.pi * 2)
         return self._translate(stacked_hologram), self._translate(tiled_hologram), self._translate(self.psf_phi), target_hologram
 
-    def reconstruct(self, hologram, source=None, pad=True):
+    def reconstruct(self, hologram, source=None, pad=True, method:Literal["FFT", "ASM"] = "FFT"):
         """
         Reconstructs hologram in the reconstruction plane to create ground truth. Source illumination can be specified.
         Default is a Gaussian Source of self.R input beam width.
         :return: Reconstruction [np.ndarray[float]]
         """
-        if source is None:
-            source = gaussiansource2(self.slm_x, self.slm_y, self.R)
-        else:
-            assert source.shape == (self.slm_N, self.slm_M), "Source should have same dimensions as SLM"
         if not pad:
+            if source is None:
+                source = gaussiansource2(self.slm_x, self.slm_y, self.R)
+            else:
+                assert source.shape == (self.slm_N, self.slm_M), "Source should have same dimensions as SLM"
             slm = source.astype(np.complex128)
             slm *= np.exp(1j * hologram)
             M, N, width, height = self.slm_M, self.slm_N, self.slm_width, self.slm_height
         else:
-            slm = np.pad(source, int(self.slm_N / 2)).astype(np.complex128)
-            slm *= np.exp(1j * np.pad(hologram, int(self.slm_N / 2)))
             M, N, width, height = 2*self.slm_M, 2*self.slm_N, 2*self.slm_width, 2*self.slm_height
+            slm_x, slm_y = np.meshgrid(np.linspace(-width / 2, width / 2, M), np.linspace(-height / 2, height / 2, N))
+            if source is None:
+                source = gaussiansource2(slm_x, slm_y, self.R)
+            else:
+                assert source.shape == (N, M), "Source should have same dimensions as SLM"
+            edge_padding = 20
+            slm = np.zeros([2 * self.slm_N, 2 * self.slm_N])
+            slm[int(self.slm_N/2):int(self.slm_N/2)+self.slm_N, int(self.slm_M/2):int(self.slm_M/2)+self.slm_M] = 1
+            slm[int(self.slm_N / 2)-edge_padding:int(self.slm_N / 2), :] = 0.8
+            slm[int(self.slm_N / 2) + self.slm_N: int(self.slm_N / 2) + self.slm_N + edge_padding,:] = 0.8
+            slm[:, int(self.slm_M / 2) - edge_padding:int(self.slm_M / 2)] = 0.8
+            slm[:, int(self.slm_M / 2) + self.slm_M:int(self.slm_M / 2) + self.slm_M + edge_padding] = 0.8
+            slm *= source
+            slm = slm.astype(np.complex64)
+            hologram = np.pad(hologram, int(self.slm_N / 2))
+            slm *= np.exp(1j * hologram)
+        slm_x, slm_y = np.meshgrid(np.linspace(-width/2, width/2, M), np.linspace(-height/2, height/2, N))
 
-        recon = np.fft.ifftshift(np.fft.fft2(np.fft.fftshift(slm)))
+        if method == "FFT":
+            recon = np.fft.ifftshift(np.fft.fft2(np.fft.fftshift(slm)))
+        else:
+            recon = propagate(slm, self.wavelength, self.focal_length, M, N, width, height)
+            recon *= np.exp(-1j*np.pi/(self.wavelength*self.focal_length) * (slm_x**2 + slm_y**2))
+            recon = propagate(recon, self.wavelength, self.focal_length, M, N, width, height)
 
         recon = np.abs(recon) ** 2
         recon -= np.min(recon)
-        recon /= np.max(recon)
+        recon /= np.mean(recon)
         return recon
 
     def translate(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
