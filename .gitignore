@@ -266,3 +266,6 @@ out/
 /Experimental outputs
 
 /"Experimental outputs"
+
+/slm
+detect_heds_module_path.py

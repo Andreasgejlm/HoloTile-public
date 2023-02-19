@@ -209,20 +209,6 @@ class HoloTile:
         self.y_offset = -y
         self.z_offset = z
 
-    def _translate(self, hologram: np.ndarray) -> np.ndarray:
-        phi_x = phi_y = phi_z = 0
-        x, y = self.slm_x, self.slm_y
-        if np.abs(self.x_offset) > 0:
-            lx = self.wavelength * self.focal_length / self.x_offset
-            phi_x = 2 * np.pi * x / lx
-        if np.abs(self.y_offset) > 0:
-            ly = self.wavelength * self.focal_length / self.y_offset
-            phi_y = 2 * np.pi * y / ly
-        if np.abs(self.z_offset) > 0:
-            lz = self.focal_length ** 2 / self.z_offset
-            phi_z = 2 * np.pi * (x ** 2 + y ** 2) / (2 * lz * self.wavelength)
-        return np.mod(hologram + phi_x + phi_y + phi_z, 2 * np.pi)
-
 
     # ------------- Private Class Methods ------------- #
 
@@ -237,3 +223,17 @@ class HoloTile:
                     self.wavelength,
                     self.focal_length,
                     iterations)
+
+    def _translate(self, hologram: np.ndarray) -> np.ndarray:
+        phi_x = phi_y = phi_z = 0
+        x, y = self.slm_x, self.slm_y
+        if np.abs(self.x_offset) > 0:
+            lx = self.wavelength * self.focal_length / self.x_offset
+            phi_x = 2 * np.pi * x / lx
+        if np.abs(self.y_offset) > 0:
+            ly = self.wavelength * self.focal_length / self.y_offset
+            phi_y = 2 * np.pi * y / ly
+        if np.abs(self.z_offset) > 0:
+            lz = self.focal_length ** 2 / self.z_offset
+            phi_z = 2 * np.pi * (x ** 2 + y ** 2) / (2 * lz * self.wavelength)
+        return np.mod(hologram + phi_x + phi_y + phi_z, 2 * np.pi)

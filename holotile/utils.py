@@ -6,16 +6,6 @@ from scipy.signal import convolve2d
 def tile2(im, n):
     return np.tile(im, (n, n))
 
-def beamshapegaussian2(xa, ya, R, D, wl, f):
-    beta = 2 * np.sqrt(2 * np.pi) * R * D / (wl * f)
-    R = R / np.sqrt(2)
-    xi = xa / (R / np.sqrt(2))
-    eta = ya / (R*6)
-    phix = np.sqrt(np.pi) / 2 * xi * sp.erf(xi) + 1 / 2 * np.exp(-xi ** 2) - 1 / 2
-    phiy = np.sqrt(np.pi) / 2 * eta * sp.erf(eta) + 1 / 2 * np.exp(-eta ** 2) - 1 / 2
-    phi = beta * (phix + phiy)
-    return phi
-
 def gaussiansource2(x, y, R=1, ux=0, uy=0):
     R = R / np.sqrt(2)
     xi = (x - ux) / R

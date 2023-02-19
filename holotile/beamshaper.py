@@ -8,13 +8,9 @@ class BeamShaper(ABC):
         self.wavelength = wavelength
         self.focal_length = focal_length
         self.slm_coords = slm_coords
-        self.angle = 0.0
         self.x_offset = 0.0
         self.y_offset = 0.0
         self.z_offset = 0.0
-        self.slm_angle = 0.0
-        self.axis_rotation_angle = 0.0
-        self.rotation_axis = 'y'
 
     def update(self, R: float, D: float) -> np.ndarray:
         self.R = R
@@ -33,7 +29,6 @@ class SquareTopHatShaper(BeamShaper):
         beta = 2 * np.sqrt(2 * np.pi) * self.R * self.D / (self.wavelength * self.focal_length)
         R = self.R / np.sqrt(2)
         x, y = self.slm_coords
-        x *= np.cos(self.slm_angle)
         xi = x / R
         eta = y / R
         phix = np.sqrt(np.pi) / 2 * xi * sp.erf(xi) + 1 / 2 * np.exp(-xi ** 2) - 1 / 2
